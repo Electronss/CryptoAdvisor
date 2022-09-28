@@ -1,0 +1,39 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cryptoadvisor
+  labels:
+    app: cryptoadvisor
+spec:
+  type: NodePort
+  selector:
+    app: cryptoadvisor
+  ports:
+    - protocol: TCP
+      port: 8080
+      name: http
+
+---
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: cryptoadvisor
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: cryptoadvisor
+    spec:
+      containers:
+        - name: cryptoadvisor
+          image: crypto/crypto:latest
+          ports:
+            - containerPort: 8080
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 30
+            timeoutSeconds: 1
